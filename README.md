@@ -7,9 +7,15 @@
 [![中文](https://img.shields.io/badge/中文-支持-green)](中文配置.md)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
+## 💻 平台支持
+
+- ✅ **Linux** - 完全支持
+- ✅ **macOS** - 完全支持
+- ✅ **Windows** - 完全支持 ([Windows 用户指南](docs/WINDOWS.md))
+
 ## ⚡ 5 分钟快速开始
 
-### 方式一: 一键安装 (推荐)
+### Linux / macOS 用户
 
 ```bash
 # 克隆项目
@@ -22,6 +28,22 @@ cd n8n-docker-chinese
 # 英文版
 ./scripts/setup.sh
 ```
+
+### Windows 用户
+
+```powershell
+# 克隆项目
+git clone https://github.com/MiloFeng/n8n-docker-chinese.git
+cd n8n-docker-chinese
+
+# 中文版 (推荐) - 使用 PowerShell
+.\scripts\setup-chinese.ps1
+
+# 或使用 Git Bash
+./scripts/setup-chinese.sh
+```
+
+> 💡 **Windows 用户**: 详细安装指南请查看 [Windows 用户指南](docs/WINDOWS.md)
 
 ### 方式二: 手动安装
 

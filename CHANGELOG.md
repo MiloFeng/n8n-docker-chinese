@@ -5,6 +5,30 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.0.2] - 2024-01-16
+
+### ✨ 新增功能
+
+#### Windows 平台支持
+- 💻 **PowerShell 脚本** - 新增 Windows 原生 PowerShell 脚本
+  - `scripts/setup-chinese.ps1` - 中文版一键安装
+  - `scripts/setup.ps1` - 英文版一键安装
+- 📖 **Windows 用户指南** - 详细的 Windows 平台使用文档
+  - Git Bash 使用方法
+  - WSL 使用方法
+  - PowerShell 使用方法
+  - 常见问题解决方案
+
+#### 跨平台兼容性
+- ✅ **Linux** - 完全支持
+- ✅ **macOS** - 完全支持
+- ✅ **Windows** - 完全支持（新增）
+
+### 🔧 改进
+
+- 📝 **README 更新** - 添加平台支持说明和 Windows 快速开始指南
+- 🎯 **用户体验** - Windows 用户现在可以使用原生 PowerShell 脚本
+
 ## [1.0.1] - 2024-01-16
 
 ### 🔧 改进
