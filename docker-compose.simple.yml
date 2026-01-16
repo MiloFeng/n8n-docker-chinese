@@ -1,0 +1,45 @@
+services:
+  # n8n 简化版 (使用 SQLite)
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-simple
+    restart: unless-stopped
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    env_file:
+      - .env
+    environment:
+      # 基础认证
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme123}
+
+      # 时区设置
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Asia/Shanghai}
+      - TZ=${TZ:-Asia/Shanghai}
+
+      # Webhook 配置
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+
+      # 加密密钥
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-simple-encryption-key-change-this}
+    volumes:
+      # 数据持久化 (包含 SQLite 数据库)
+      - n8n_data:/home/node/.n8n
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - n8n-network
+
+volumes:
+  n8n_data:
+    driver: local
+
+networks:
+  n8n-network:
+    driver: bridge
+

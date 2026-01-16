@@ -1,0 +1,83 @@
+# Prometheus 告警规则
+
+groups:
+  - name: n8n_alerts
+    interval: 30s
+    rules:
+      # n8n 服务宕机
+      - alert: N8nDown
+        expr: up{job="n8n"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: n8n
+        annotations:
+          summary: "n8n 服务宕机"
+          description: "n8n 服务已经宕机超过 1 分钟"
+
+      # n8n 工作流执行失败率高
+      - alert: N8nHighFailureRate
+        expr: rate(n8n_workflow_failed_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: n8n
+        annotations:
+          summary: "n8n 工作流失败率过高"
+          description: "过去 5 分钟内工作流失败率超过 10%"
+
+      # 数据库连接失败
+      - alert: PostgresDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgres
+        annotations:
+          summary: "PostgreSQL 数据库宕机"
+          description: "PostgreSQL 数据库已经宕机超过 1 分钟"
+
+      # CPU 使用率过高
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "CPU 使用率过高"
+          description: "CPU 使用率超过 80% 持续 5 分钟"
+
+      # 内存使用率过高
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "内存使用率过高"
+          description: "内存使用率超过 85% 持续 5 分钟"
+
+      # 磁盘空间不足
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "磁盘空间不足"
+          description: "根分区可用空间少于 15%"
+
+      # 容器重启频繁
+      - alert: ContainerRestarting
+        expr: rate(container_last_seen{name=~"n8n.*"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          service: docker
+        annotations:
+          summary: "容器频繁重启"
+          description: "容器在过去 5 分钟内频繁重启"
+

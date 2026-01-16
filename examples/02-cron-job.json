@@ -1,0 +1,62 @@
+{
+  "name": "定时任务示例",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-node",
+      "name": "定时触发",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "notes": "每天早上 9 点执行"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "task",
+              "value": "每日任务"
+            },
+            {
+              "name": "executedAt",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "set-node",
+      "name": "执行任务",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "notes": "这里可以添加实际的任务逻辑"
+    }
+  ],
+  "connections": {
+    "定时触发": {
+      "main": [
+        [
+          {
+            "node": "执行任务",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": ["定时任务", "Cron"]
+}
+

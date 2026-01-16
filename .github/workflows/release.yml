@@ -1,0 +1,90 @@
+name: 创建 Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-release:
+    name: 创建 Release
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 生成更新日志
+        id: changelog
+        run: |
+          # 获取上一个标签
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # 如果没有上一个标签，获取所有提交
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            # 获取两个标签之间的提交
+            CHANGELOG=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          # 保存到文件
+          echo "$CHANGELOG" > CHANGELOG.txt
+          
+          # 输出到 GitHub Actions
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: 创建 Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: |
+            ## 🎉 新版本发布
+            
+            ### 📝 更新内容
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ### 📦 安装方法
+            
+            ```bash
+            # 克隆仓库
+            git clone https://github.com/${{ github.repository }}.git
+            cd n8n-docker
+            
+            # 切换到此版本
+            git checkout ${{ github.ref_name }}
+            
+            # 启动服务
+            ./scripts/setup-chinese.sh
+            ```
+            
+            ### 📚 文档
+            
+            - [README](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/README.md)
+            - [故障排查](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/TROUBLESHOOTING.md)
+            - [中文配置](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/中文配置.md)
+            
+            ### ⚠️ 注意事项
+            
+            - 请先备份数据再升级
+            - 请修改默认密码和加密密钥
+            - 详细说明请查看文档
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 通知
+        if: success()
+        run: |
+          echo "✅ Release ${{ github.ref_name }} 创建成功！"
+          echo "🔗 https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+

@@ -1,0 +1,68 @@
+# 环境变量文件 (包含敏感信息)
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# 备份文件 (可能包含数据库数据)
+backups/
+*.sql
+*.sql.gz
+*.tar.gz
+*.backup
+
+# n8n 数据目录 (包含工作流和凭证)
+n8n-local-files/
+.n8n/
+
+# 中文 UI 文件 (体积大，从源下载)
+n8n-chinese-ui/
+.n8n-chinese-version
+docker-compose.yml.backup.*
+
+# SSL 证书 (私钥)
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+*.pem
+*.key
+*.crt
+
+# Docker volumes 数据
+volumes/
+
+# 日志文件
+*.log
+logs/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.directory
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker
+.docker/
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+PUSH_TO_GITHUB.md

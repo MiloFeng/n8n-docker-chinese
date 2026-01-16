@@ -1,0 +1,141 @@
+name: Docker Compose 测试
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-compose-files:
+    name: 测试 Docker Compose 配置
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        compose-file:
+          - docker-compose.yml
+          - docker-compose.simple.yml
+          - docker-compose.mysql.yml
+          - docker-compose.ssl.yml
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: 创建 .env 文件
+        run: |
+          cp .env.example .env
+          # 生成随机加密密钥
+          echo "N8N_ENCRYPTION_KEY=$(openssl rand -base64 32)" >> .env
+      
+      - name: 创建必要的目录
+        run: |
+          mkdir -p n8n-local-files
+          mkdir -p n8n-chinese-ui/dist
+          # 创建一个空的 index.html 用于测试
+          echo "<html><body>Test</body></html>" > n8n-chinese-ui/dist/index.html
+      
+      - name: 验证 Docker Compose 配置
+        run: |
+          docker compose -f ${{ matrix.compose-file }} config
+      
+      - name: 启动服务
+        run: |
+          docker compose -f ${{ matrix.compose-file }} up -d
+        timeout-minutes: 5
+      
+      - name: 等待服务就绪
+        run: |
+          echo "等待服务启动..."
+          sleep 30
+      
+      - name: 检查服务状态
+        run: |
+          docker compose -f ${{ matrix.compose-file }} ps
+      
+      - name: 检查健康状态
+        run: |
+          # 检查 n8n 是否可访问
+          for i in {1..10}; do
+            if curl -f http://localhost:5678 > /dev/null 2>&1; then
+              echo "✅ n8n 服务正常运行"
+              exit 0
+            fi
+            echo "等待 n8n 启动... ($i/10)"
+            sleep 10
+          done
+          echo "❌ n8n 服务启动失败"
+          exit 1
+      
+      - name: 查看日志（如果失败）
+        if: failure()
+        run: |
+          docker compose -f ${{ matrix.compose-file }} logs
+      
+      - name: 清理
+        if: always()
+        run: |
+          docker compose -f ${{ matrix.compose-file }} down -v
+
+  validate-scripts:
+    name: 验证脚本
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 检查脚本语法
+        run: |
+          for script in scripts/*.sh; do
+            echo "检查 $script"
+            bash -n "$script"
+          done
+      
+      - name: 检查脚本权限
+        run: |
+          for script in scripts/*.sh; do
+            if [ ! -x "$script" ]; then
+              echo "❌ $script 没有执行权限"
+              exit 1
+            fi
+          done
+          echo "✅ 所有脚本都有执行权限"
+
+  validate-docs:
+    name: 验证文档
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 检查 Markdown 链接
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          config-file: '.github/markdown-link-check-config.json'
+      
+      - name: 检查必要文件
+        run: |
+          files=(
+            "README.md"
+            "LICENSE"
+            "CONTRIBUTING.md"
+            ".env.example"
+            ".gitignore"
+            ".editorconfig"
+          )
+          
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ 缺少文件: $file"
+              exit 1
+            fi
+          done
+          echo "✅ 所有必要文件都存在"
+

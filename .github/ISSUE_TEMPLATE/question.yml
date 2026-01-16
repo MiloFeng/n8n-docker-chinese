@@ -1,0 +1,54 @@
+name: ❓ 问题咨询
+description: 询问使用相关的问题
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        在提问之前，请先查看：
+        - [故障排查文档](../../TROUBLESHOOTING.md)
+        - [中文配置指南](../../中文配置.md)
+        - [性能优化指南](../../PERFORMANCE.md)
+
+  - type: textarea
+    id: question
+    attributes:
+      label: 您的问题
+      description: 请详细描述您的问题
+      placeholder: 我想知道如何...
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: 您尝试过什么？
+      description: 您已经尝试了哪些方法？
+      placeholder: |
+        我已经尝试了：
+        1. ...
+        2. ...
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 请提供您的环境信息（如果相关）
+      placeholder: |
+        - 操作系统: 
+        - Docker 版本: 
+        - n8n 版本: 
+        - 部署方式: 
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 确认事项
+      description: 在提交之前，请确认以下事项
+      options:
+        - label: 我已经阅读了相关文档
+          required: true
+        - label: 我已经搜索过现有的 Issues
+          required: true
+

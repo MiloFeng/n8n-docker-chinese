@@ -1,0 +1,104 @@
+name: 🐛 Bug 报告
+description: 报告一个问题或错误
+title: "[Bug]: "
+labels: ["bug", "需要分类"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间填写此错误报告！
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么？
+      description: 请详细描述您遇到的问题
+      placeholder: 告诉我们您看到了什么！
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为
+      description: 您期望发生什么？
+      placeholder: 描述预期的行为
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 重现步骤
+      description: 如何重现这个问题？
+      placeholder: |
+        1. 执行 '...'
+        2. 点击 '...'
+        3. 看到错误
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: 部署方式
+      description: 您使用的是哪种部署方式？
+      options:
+        - docker-compose.yml (PostgreSQL)
+        - docker-compose.simple.yml (SQLite)
+        - docker-compose.mysql.yml (MySQL)
+        - docker-compose.ssl.yml (SSL/HTTPS)
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: n8n 版本
+      description: 您使用的 n8n 版本是什么？
+      placeholder: "例如: 1.122.5"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 请提供您的环境信息
+      placeholder: |
+        - 操作系统: macOS 14.0
+        - Docker 版本: 24.0.0
+        - Docker Compose 版本: 2.20.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关日志
+      description: 请粘贴相关的错误日志
+      render: shell
+      placeholder: |
+        docker compose logs n8n
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 其他信息
+      description: 还有其他需要补充的信息吗？
+      placeholder: 截图、配置文件等
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 确认事项
+      description: 在提交之前，请确认以下事项
+      options:
+        - label: 我已经搜索过现有的 Issues，没有发现重复的问题
+          required: true
+        - label: 我已经阅读了故障排查文档 (TROUBLESHOOTING.md)
+          required: true
+        - label: 我已经检查了 .env 文件中的配置
+          required: false
+

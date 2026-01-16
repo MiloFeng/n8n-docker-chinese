@@ -1,0 +1,80 @@
+{
+  "name": "Webhook 触发示例",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "my-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "my-webhook-id",
+      "notes": "接收 POST 请求"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "receivedData",
+              "value": "={{ JSON.stringify($json) }}"
+            },
+            {
+              "name": "processedAt",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "process-node",
+      "name": "处理数据",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"数据已接收\", \"data\": $json } }}"
+      },
+      "id": "response-node",
+      "name": "返回响应",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "处理数据",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "处理数据": {
+      "main": [
+        [
+          {
+            "node": "返回响应",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": ["Webhook", "API"]
+}
+

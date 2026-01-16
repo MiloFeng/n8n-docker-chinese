@@ -1,0 +1,52 @@
+{
+  "name": "Hello World - 入门示例",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "start-node",
+      "name": "开始",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "Hello, n8n! 你好，世界！"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-node",
+      "name": "设置数据",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "开始": {
+      "main": [
+        [
+          {
+            "node": "设置数据",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": ["示例", "入门"]
+}
+

@@ -1,0 +1,95 @@
+services:
+  # n8n 自定义镜像版本 (预装中文 UI)
+  n8n:
+    # 使用自定义构建的镜像
+    image: n8n-chinese:latest
+    # 或者从本地 Dockerfile 构建
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     N8N_VERSION: latest
+    #     CHINESE_UI_VERSION: latest
+    container_name: n8n-custom
+    restart: unless-stopped
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    env_file:
+      - .env
+    environment:
+      # 基础认证
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme123}
+      
+      # 数据库配置 (PostgreSQL)
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-n8n}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-n8n}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-n8n_password}
+      
+      # 时区设置
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Asia/Shanghai}
+      - TZ=${TZ:-Asia/Shanghai}
+      
+      # Webhook 配置
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+      
+      # 执行配置
+      - EXECUTIONS_PROCESS=main
+      - EXECUTIONS_MODE=regular
+      
+      # 加密密钥
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-your-encryption-key-change-this}
+      
+      # 中文 UI (已预装在镜像中)
+      - N8N_EDITOR_BASE_URL=/data/n8n-chinese-ui/dist
+    volumes:
+      # 数据持久化
+      - n8n_data:/home/node/.n8n
+      # 本地文件
+      - ./n8n-local-files:/files
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - n8n-network
+
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:16-alpine
+    container_name: n8n-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-n8n}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-n8n_password}
+      - POSTGRES_DB=${POSTGRES_DB:-n8n}
+      - TZ=${TZ:-Asia/Shanghai}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-n8n}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - n8n-network
+
+volumes:
+  n8n_data:
+    driver: local
+  postgres_data:
+    driver: local
+
+networks:
+  n8n-network:
+    driver: bridge
+
